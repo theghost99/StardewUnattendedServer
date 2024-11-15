@@ -1,0 +1,65 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build",
+        "command": "dotnet",
+        "type": "process",
+        "args": [
+          "build",
+          "${workspaceFolder}/StardewUnattendedServer/StardewUnattendedServer.csproj",
+          "/property:GenerateFullPaths=true",
+          "/consoleloggerparameters:NoSummary"
+        ],
+        "problemMatcher": "$msCompile",
+        "group": {
+          "kind": "build"
+        }
+      },
+      {
+        "label": "dev",
+        "command": "dotnet",
+        "type": "process",
+        "args": [
+          "watch",
+          "build",
+          "--project",
+          "${workspaceFolder}/StardewUnattendedServer/StardewUnattendedServer.csproj",
+          "--",
+          "/property:GenerateFullPaths=true",
+          "/consoleloggerparameters:NoSummary"
+        ],
+        "problemMatcher": "$msCompile",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "publish",
+        "command": "dotnet",
+        "type": "process",
+        "args": [
+          "publish",
+          "${workspaceFolder}/StardewUnattendedServer/StardewUnattendedServer.csproj",
+          "/property:GenerateFullPaths=true",
+          "/consoleloggerparameters:NoSummary"
+        ],
+        "problemMatcher": "$msCompile"
+      },
+      {
+        "label": "watch",
+        "command": "dotnet",
+        "type": "process",
+        "args": [
+          "watch",
+          "run",
+          "--project",
+          "${workspaceFolder}/StardewUnattendedServer/StardewUnattendedServer.csproj"
+        ],
+        "problemMatcher": "$msCompile",
+        "dependsOn": "build",
+        "isBackground": true
+      }
+    ]
+  }

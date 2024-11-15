@@ -1,0 +1,10 @@
+{
+    "Name": "Stardew Unattended Server Mod",
+    "Author": "the_ghost99",
+    "Version": "1.0.0",
+    "Description": "An Unattended Server Mod",
+    "UniqueID": "the_ghost99.stardewunattendedserver",
+    "EntryDll": "StardewUnattendedServer.dll",
+    "MinimumApiVersion": "4.1.4",
+    "UpdateKeys": []
+  }
