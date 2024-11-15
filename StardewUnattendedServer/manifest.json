@@ -5,6 +5,6 @@
     "Description": "An Unattended Server Mod",
     "UniqueID": "the_ghost99.stardewunattendedserver",
     "EntryDll": "StardewUnattendedServer.dll",
-    "MinimumApiVersion": "4.1.4",
+    "MinimumApiVersion": "4.1.7",
     "UpdateKeys": []
   }

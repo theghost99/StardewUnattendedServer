@@ -135,6 +135,8 @@ namespace StardewUnattendedServer
                 // store levels, set in game levels to max
                 var data = this.Helper.Data.ReadJsonFile<ModData>($"data/{Constants.SaveFolderName}.json") ?? new ModData();
 
+
+
                 // Skill numbers
                 int FarmingSkillNumber = Farmer.getSkillNumberFromName("farming");
                 int MiningSkillNumber = Farmer.getSkillNumberFromName("mining");
@@ -157,11 +159,18 @@ namespace StardewUnattendedServer
                 data.CombatExperience = Game1.player.experiencePoints[CombatSkillNumber];
 
                 this.Helper.Data.WriteJsonFile($"data/{Constants.SaveFolderName}.json", data);
-                Game1.player.setSkillLevel("Farming", 10);
-                Game1.player.setSkillLevel("Mining", 10);
-                Game1.player.setSkillLevel("Foraging", 10);
-                Game1.player.setSkillLevel("Fishing", 10);
-                Game1.player.setSkillLevel("Combat", 10);
+                if (this.Config.autoLevel) {
+                    if (data.FarmingLevel != 10)
+                        Game1.player.setSkillLevel("Farming", 10);
+                    if (data.MiningLevel != 10)
+                        Game1.player.setSkillLevel("Mining", 10);
+                    if (data.ForagingLevel != 10)
+                        Game1.player.setSkillLevel("Foraging", 10);
+                    if (data.FishingLevel != 10)
+                        Game1.player.setSkillLevel("Fishing", 10);
+                    if (data.CombatLevel != 10)
+                        Game1.player.setSkillLevel("Combat", 10);
+                }
                 ////////////////////////////////////////
                 IsEnabled = true;
                 Game1.chatBox.addInfoMessage("The Host is in Server Mode!");
@@ -271,11 +280,18 @@ namespace StardewUnattendedServer
                     data.CombatExperience = Game1.player.experiencePoints[CombatSkillNumber];
 
                     this.Helper.Data.WriteJsonFile($"data/{Constants.SaveFolderName}.json", data);
-                    Game1.player.setSkillLevel("Farming", 10);
-                    Game1.player.setSkillLevel("Mining", 10);
-                    Game1.player.setSkillLevel("Foraging", 10);
-                    Game1.player.setSkillLevel("Fishing", 10);
-                    Game1.player.setSkillLevel("Combat", 10);
+                    if (this.Config.autoLevel) {
+                        if (data.FarmingLevel != 10)
+                            Game1.player.setSkillLevel("Farming", 10);
+                        if (data.MiningLevel != 10)
+                            Game1.player.setSkillLevel("Mining", 10);
+                        if (data.ForagingLevel != 10)
+                            Game1.player.setSkillLevel("Foraging", 10);
+                        if (data.FishingLevel != 10)
+                            Game1.player.setSkillLevel("Fishing", 10);
+                        if (data.CombatLevel != 10)
+                            Game1.player.setSkillLevel("Combat", 10);
+                    }
                     ///////////////////////////////////////////
                     Game1.addHUDMessage(new HUDMessage("Server Mode COMPLETE!"));
                     ///////////////////////////////////////////
@@ -302,19 +318,21 @@ namespace StardewUnattendedServer
 
                     var data = this.Helper.Data.ReadJsonFile<ModData>($"data/{Constants.SaveFolderName}.json") ?? new ModData();
 
-                    // Set levels
-                    Game1.player.farmingLevel.Value = data.FarmingLevel;
-                    Game1.player.miningLevel.Value = data.MiningLevel;
-                    Game1.player.foragingLevel.Value = data.ForagingLevel;
-                    Game1.player.fishingLevel.Value = data.FishingLevel;
-                    Game1.player.combatLevel.Value = data.CombatLevel;
+                    if (this.Config.autoLevel) {
+                        // Set levels
+                        Game1.player.farmingLevel.Value = data.FarmingLevel;
+                        Game1.player.miningLevel.Value = data.MiningLevel;
+                        Game1.player.foragingLevel.Value = data.ForagingLevel;
+                        Game1.player.fishingLevel.Value = data.FishingLevel;
+                        Game1.player.combatLevel.Value = data.CombatLevel;
 
-                    // Set EXP
-                    Game1.player.experiencePoints[FarmingSkillNumber] = data.FarmingExperience;
-                    Game1.player.experiencePoints[MiningSkillNumber] = data.MiningExperience;
-                    Game1.player.experiencePoints[ForagingSkillNumber] = data.ForagingExperience;
-                    Game1.player.experiencePoints[FishingSkillNumber] = data.FishingExperience;
-                    Game1.player.experiencePoints[CombatSkillNumber] = data.CombatExperience;
+                        // Set EXP
+                        Game1.player.experiencePoints[FarmingSkillNumber] = data.FarmingExperience;
+                        Game1.player.experiencePoints[MiningSkillNumber] = data.MiningExperience;
+                        Game1.player.experiencePoints[ForagingSkillNumber] = data.ForagingExperience;
+                        Game1.player.experiencePoints[FishingSkillNumber] = data.FishingExperience;
+                        Game1.player.experiencePoints[CombatSkillNumber] = data.CombatExperience;
+                    }
                     //////////////////////////////////////
                 }
             }
@@ -330,87 +348,8 @@ namespace StardewUnattendedServer
             {
                 if (e.Button == this.Config.serverHotKey)
                 {
-                    if (!IsEnabled)
-                    {
-                        Helper.ReadConfig<ModConfig>();
-                        IsEnabled = true;
-                        this.Monitor.Log("The server is on!", LogLevel.Info);
-                        Game1.chatBox.addInfoMessage("The Host is in Server Mode!");
-
-                        Game1.displayHUD = true;
-                        Game1.addHUDMessage(new HUDMessage("Server Mode On!"));
-
-                        Game1.options.pauseWhenOutOfFocus = false;
-                        // store levels, set in game levels to max
-                        var data = this.Helper.Data.ReadJsonFile<ModData>($"data/{Constants.SaveFolderName}.json") ?? new ModData();
-
-                        // Skill numbers
-                        int FarmingSkillNumber = Farmer.getSkillNumberFromName("farming");
-                        int MiningSkillNumber = Farmer.getSkillNumberFromName("mining");
-                        int ForagingSkillNumber = Farmer.getSkillNumberFromName("foraging");
-                        int FishingSkillNumber = Farmer.getSkillNumberFromName("fishing");
-                        int CombatSkillNumber = Farmer.getSkillNumberFromName("combat");
-
-                        // Levels
-                        data.FarmingLevel = Game1.player.FarmingLevel;
-                        data.MiningLevel = Game1.player.MiningLevel;
-                        data.ForagingLevel = Game1.player.ForagingLevel;
-                        data.FishingLevel = Game1.player.FishingLevel;
-                        data.CombatLevel = Game1.player.CombatLevel;
-
-                        //Experience
-                        data.FarmingExperience = Game1.player.experiencePoints[FarmingSkillNumber];
-                        data.MiningExperience = Game1.player.experiencePoints[MiningSkillNumber];
-                        data.ForagingExperience = Game1.player.experiencePoints[ForagingSkillNumber];
-                        data.FishingExperience = Game1.player.experiencePoints[FishingSkillNumber];
-                        data.CombatExperience = Game1.player.experiencePoints[CombatSkillNumber];
-
-                        this.Helper.Data.WriteJsonFile($"data/{Constants.SaveFolderName}.json", data);
-                        Game1.player.setSkillLevel("Farming", 10);
-                        Game1.player.setSkillLevel("Mining", 10);
-                        Game1.player.setSkillLevel("Foraging", 10);
-                        Game1.player.setSkillLevel("Fishing", 10);
-                        Game1.player.setSkillLevel("Combat", 10);
-                        ///////////////////////////////////////////
-                        Game1.addHUDMessage(new HUDMessage("Server Mode COMPLETE!"));
-                    }
-                    else
-                    {
-                        IsEnabled = false;
-                        this.Monitor.Log("The server is off!", LogLevel.Info);
-
-                        Game1.chatBox.addInfoMessage("The Host has returned!");
-
-                        Game1.displayHUD = true;
-                        Game1.addHUDMessage(new HUDMessage("Server Mode Off!"));
-
-                        //set player levels to stored levels
-                        
-                        // Skill numbers
-                        int FarmingSkillNumber = Farmer.getSkillNumberFromName("farming");
-                        int MiningSkillNumber = Farmer.getSkillNumberFromName("mining");
-                        int ForagingSkillNumber = Farmer.getSkillNumberFromName("foraging");
-                        int FishingSkillNumber = Farmer.getSkillNumberFromName("fishing");
-                        int CombatSkillNumber = Farmer.getSkillNumberFromName("combat");
-
-                        var data = this.Helper.Data.ReadJsonFile<ModData>($"data/{Constants.SaveFolderName}.json") ?? new ModData();
-
-                        // Set levels
-                        Game1.player.farmingLevel.Value = data.FarmingLevel;
-                        Game1.player.miningLevel.Value = data.MiningLevel;
-                        Game1.player.foragingLevel.Value = data.ForagingLevel;
-                        Game1.player.fishingLevel.Value = data.FishingLevel;
-                        Game1.player.combatLevel.Value = data.CombatLevel;
-
-                        // Set EXP
-                        Game1.player.experiencePoints[FarmingSkillNumber] = data.FarmingExperience;
-                        Game1.player.experiencePoints[MiningSkillNumber] = data.MiningExperience;
-                        Game1.player.experiencePoints[ForagingSkillNumber] = data.ForagingExperience;
-                        Game1.player.experiencePoints[FishingSkillNumber] = data.FishingExperience;
-                        Game1.player.experiencePoints[CombatSkillNumber] = data.CombatExperience;
-                        //////////////////////////////////////
-
-                    }
+                    string[] tmpStr = {"",""};
+                    this.ServerToggle("server",tmpStr);
                     //warp farmer on button press
                     if (Game1.player.currentLocation is FarmHouse)
                     {
@@ -486,7 +425,7 @@ namespace StardewUnattendedServer
                 }
             }
 
-            //write code to a InviteCode.txt in the Stardew Multiplayer Server Mod mod folder
+            //write code to a InviteCode.txt in the StardewUnattendedServer mod folder
             if (Game1.options.enableServer)
             {
                 if (inviteCodeTXT != Game1.server.getInviteCode())
@@ -499,7 +438,7 @@ namespace StardewUnattendedServer
                     {
 
                         //Pass the filepath and filename to the StreamWriter Constructor
-                        StreamWriter sw = new StreamWriter("Mods/Stardew Multiplayer Server Mod/InviteCode.txt");
+                        StreamWriter sw = new StreamWriter("Mods/StardewUnattendedServer/InviteCode.txt");
 
                         //Write a line of text
                         sw.WriteLine(inviteCodeTXT);
@@ -530,7 +469,7 @@ namespace StardewUnattendedServer
                     {
 
                         //Pass the filepath and filename to the StreamWriter Constructor
-                        StreamWriter sw = new StreamWriter("Mods/Stardew Multiplayer Server Mod/ConnectionsCount.txt");
+                        StreamWriter sw = new StreamWriter("Mods/StardewUnattendedServer/ConnectionsCount.txt");
 
                         //Write a line of text
                         sw.WriteLine(connectionsCount);
@@ -571,16 +510,6 @@ namespace StardewUnattendedServer
                         skipTicks = 0;
                     }
                 }
-                /*if (!playerMovedRight && Game1.player.canMove)
-                {
-                    Game1.player.tryToMoveInDirection(1, true, 0, false);
-                    playerMovedRight = true;
-                }
-                else if (playerMovedRight && Game1.player.canMove)
-                {
-                    Game1.player.tryToMoveInDirection(3, true, 0, false);
-                    playerMovedRight = false;
-                }*/
             }
 
 
@@ -632,10 +561,6 @@ namespace StardewUnattendedServer
                 }
                 if (eggHuntCountDown >= this.Config.eggHuntCountDownConfig + 5)
                 {
-                    if (Game1.activeClickableMenu != null)
-                    {
-                        //this.Helper.Reflection.GetMethod(Game1.activeClickableMenu, "receiveLeftClick").Invoke(10, 10, true);
-                    }
                     //festival timeout
                     festivalTicksForReset += 1;
                     if (festivalTicksForReset >= this.Config.eggFestivalTimeOut + 180)
@@ -673,11 +598,6 @@ namespace StardewUnattendedServer
                 }
                 if (flowerDanceCountDown >= this.Config.flowerDanceCountDownConfig + 5)
                 {
-                    if (Game1.activeClickableMenu != null)
-                    {
-                        // this.Helper.Reflection.GetMethod(Game1.activeClickableMenu, "receiveLeftClick").Invoke(10, 10, true);
-                    }
-
                     //festival timeout
                     festivalTicksForReset += 1;
                     if (festivalTicksForReset >= this.Config.flowerDanceTimeOut + 90)
@@ -722,10 +642,6 @@ namespace StardewUnattendedServer
                 }
                 if (luauSoupCountDown >= this.Config.luauSoupCountDownConfig + 5)
                 {
-                    if (Game1.activeClickableMenu != null)
-                    {
-                        //this.Helper.Reflection.GetMethod(Game1.activeClickableMenu, "receiveLeftClick").Invoke(10, 10, true);
-                    }
                     //festival timeout
                     festivalTicksForReset += 1;
                     if (festivalTicksForReset >= this.Config.luauTimeOut + 80)
@@ -762,10 +678,6 @@ namespace StardewUnattendedServer
                 }
                 if (jellyDanceCountDown >= this.Config.jellyDanceCountDownConfig + 5)
                 {
-                    if (Game1.activeClickableMenu != null)
-                    {
-                        // this.Helper.Reflection.GetMethod(Game1.activeClickableMenu, "receiveLeftClick").Invoke(10, 10, true);
-                    }
                     //festival timeout
                     festivalTicksForReset += 1;
                     if (festivalTicksForReset >= this.Config.danceOfJelliesTimeOut + 180)
@@ -857,10 +769,6 @@ namespace StardewUnattendedServer
                 }
                 if (iceFishingCountDown >= this.Config.iceFishingCountDownConfig + 5)
                 {
-                    if (Game1.activeClickableMenu != null)
-                    {
-                        //this.Helper.Reflection.GetMethod(Game1.activeClickableMenu, "receiveLeftClick").Invoke(10, 10, true);
-                    }
                     //festival timeout
                     festivalTicksForReset += 1;
                     if (festivalTicksForReset >= this.Config.festivalOfIceTimeOut + 180)

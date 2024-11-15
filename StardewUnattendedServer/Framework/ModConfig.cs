@@ -5,7 +5,7 @@ namespace StardewUnattendedServer.Framework
     class ModConfig
     {
         public SButton serverHotKey { get; set; } = SButton.F9;
-
+        public bool autoLevel { get; set; } = true;
         public int profitmargin { get; set; } = 100;
         public int upgradeHouse { get; set; } = 0;
         public string petname { get; set; } = "Qwerty";
