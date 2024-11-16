@@ -1,6 +1,7 @@
 StardewUnattendedMultiplayerServer (Formerly Stardew-Multiplayer-Server-Mod (Formerly funny-snek's Always-On-Server-for-Multiplayer))
 Nexus Mods page: 
-TBD
+https://www.nexusmods.com/stardewvalley/mods/29423/
+
 This is a fork of the fork of the original Always-On-Server-for-Multiplayer mod for Stardew Valley, created by the awesome funny-snek.
 
 Why the Fork?
@@ -24,7 +25,7 @@ For more information on the original mods' features and usage, please refer to t
     Nexus Mods page: https://www.nexusmods.com/stardewvalley/mods/2677
 
     - Fork - 
-    AguirreMoy's GitHub repository: https://github.com/AguirreMoy/Stardew-Multiplayer-Server-Mod
+    Moy's GitHub repository: https://github.com/AguirreMoy/Stardew-Multiplayer-Server-Mod
     Nexus Mods page: https://www.nexusmods.com/stardewvalley/mods/20659
     
 
