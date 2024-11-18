@@ -234,9 +234,7 @@ namespace StardewUnattendedServer
             }
         }
 
-
-        // toggles server on/off with console command "server"
-        private void ServerToggle(string command, string[] args)
+        private void ToggleServer()
         {
             if (Context.IsWorldReady)
             {
@@ -338,6 +336,14 @@ namespace StardewUnattendedServer
             }
         }
 
+        // toggles server on/off with console command "server"
+        private void ServerToggle(string command, string[] args)
+        {
+            ToggleServer();
+        }
+
+
+
         /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
@@ -348,8 +354,7 @@ namespace StardewUnattendedServer
             {
                 if (e.Button == this.Config.serverHotKey)
                 {
-                    string[] tmpStr = {"",""};
-                    this.ServerToggle("server",tmpStr);
+                    ToggleServer();
                     //warp farmer on button press
                     if (Game1.player.currentLocation is FarmHouse)
                     {
