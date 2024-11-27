@@ -15,6 +15,7 @@ using StardewValley.Menus;
 using StardewValley.Network;
 using StardewValley.Objects;
 using SObject = StardewValley.Object;
+using System.Runtime.CompilerServices;
 
 namespace StardewUnattendedServer
 {
@@ -108,8 +109,8 @@ namespace StardewUnattendedServer
 
             helper.ConsoleCommands.Add("server", "Toggles headless server on/off", this.ServerToggle);
             helper.ConsoleCommands.Add("debug_server", "Turns debug mode on/off, lets server run when no players are connected", this.DebugToggle);
-
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
+            helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.Saving += this.OnSaving; // Shipping Menu handler
             helper.Events.GameLoop.OneSecondUpdateTicked += this.OnOneSecondUpdateTicked; //game tick event handler
             helper.Events.GameLoop.TimeChanged += this.OnTimeChanged; // Time of day change handler
@@ -117,6 +118,302 @@ namespace StardewUnattendedServer
             helper.Events.Input.ButtonPressed += this.OnButtonPressed;
             helper.Events.Display.Rendered += this.OnRendered;
             helper.Events.Specialized.UnvalidatedUpdateTicked += OnUnvalidatedUpdateTick; //used bc only thing that gets throug save window
+        }
+
+        private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
+        {
+            // get Generic Mod Config Menu's API (if it's installed)
+            var configMenu = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+            if (configMenu is not null)
+            {
+                // register mod
+                configMenu.Register(
+                    mod: this.ModManifest,
+                    reset: () => this.Config = new ModConfig(),
+                    save: () => this.Helper.WriteConfig(this.Config)
+                );
+
+                configMenu.AddSectionTitle(
+                    mod: this.ModManifest,
+                    text: () => "Main Server Settings"
+                );
+
+                configMenu.AddKeybind(
+                    mod: this.ModManifest,
+                    name: () => "Toggle Server Key Binding",
+                    tooltip: () => "The keyboard button for toggling the server on and off ('F9' is default)",
+                    getValue: () => this.Config.serverHotKey,
+                    setValue: value => this.Config.serverHotKey = value
+                );
+
+                configMenu.AddBoolOption(
+                    mod: this.ModManifest,
+                    name: () => "Auto Level Up",
+                    tooltip: () => "Whether the host automatically levels everything to 10 when the server is active (Enabled is default)",
+                    getValue: () => this.Config.autoLevel,
+                    setValue: value => this.Config.autoLevel = value
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => "House Upgrade Level",
+                    tooltip: () => "What level of upgrade will the host's house be (0 is default)",
+                    getValue: () => this.Config.upgradeHouse,
+                    setValue: value => this.Config.upgradeHouse = value,
+                    min: 0,
+                    max: 3,
+                    interval: 1
+                );
+
+                configMenu.AddTextOption(
+                    mod: ModManifest,
+                    name: () => "Pet Name",
+                    tooltip: () => "Name of the pet ('Qwerty' is default)",
+                    getValue: () => this.Config.petname,
+                    setValue: value => this.Config.petname = value
+                );
+
+                configMenu.AddBoolOption(
+                    mod: ModManifest,
+                    name: () => "Mushroom Cave",
+                    tooltip: () => "Sets cave as mushroom (enabled) or bat (disabled). Set before run (Enabled is default)",
+                    getValue: () => this.Config.farmcavechoicemushrooms,
+                    setValue: value => this.Config.farmcavechoicemushrooms = value
+                );
+
+                configMenu.AddBoolOption(
+                    mod: ModManifest,
+                    name: () => "Community Centre Run",
+                    tooltip: () => "host will attempt Community Centre run, disabled will do Joja run (Enabled is default)",
+                    getValue: () => this.Config.communitycenterrun,
+                    setValue: value => this.Config.communitycenterrun = value
+                );
+
+                configMenu.AddNumberOption(
+                    mod: ModManifest,
+                    name: () => "Sleep Time",
+                    tooltip: () => "Time for the host to go to sleep automatically (2200 is default)",
+                    getValue: () => this.Config.timeOfDayToSleep,
+                setValue: value => this.Config.timeOfDayToSleep = value,
+                min: 0610,
+                max: 2600,
+                interval: 10
+            );
+
+            configMenu.AddBoolOption(
+                mod: ModManifest,
+                name: () => "Lock Player Chests",
+                tooltip: () => "While servermode is on, players can not access the chests or inventory in other player's cabins (Enabled is default)",
+                getValue: () => this.Config.lockPlayerChests,
+                setValue: value => this.Config.lockPlayerChests = value
+            );
+
+            configMenu.AddBoolOption(
+                mod: ModManifest,
+                name: () => "Clients Can Pause",
+                tooltip: () => "Clients can type !pause/!unpause into chat (Disabled is default)",
+                getValue: () => this.Config.clientsCanPause,
+                setValue: value => this.Config.clientsCanPause = value
+            );
+
+            configMenu.AddBoolOption(
+                mod: ModManifest,
+                name: () => "Copy Invite Code to Clipboard",
+                tooltip: () => "Copies current invite code to your computer's clipboard once a minute (Enabled is default)",
+                getValue: () => this.Config.copyInviteCodeToClipboard,
+                setValue: value => this.Config.copyInviteCodeToClipboard = value
+            );
+
+            configMenu.AddBoolOption(
+                mod: ModManifest,
+                name: () => "Festivals",
+                tooltip: () => "Host will go to festivals automatically (Enabled is default)",
+                getValue: () => this.Config.festivalsOn,
+                setValue: value => this.Config.festivalsOn = value
+            );
+
+            configMenu.AddSectionTitle(
+                mod: this.ModManifest,
+                text: () => "Festival and Event Settings"
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Egg Hunt Count Down",
+                tooltip: () => "Number of seconds from when the Egg Festival starts until the main event is triggered. Can be manually triggered as well(60 is default)",
+                getValue: () => this.Config.eggHuntCountDownConfig,
+                setValue: value => this.Config.eggHuntCountDownConfig = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Egg Hunt Time Out",
+                tooltip: () => "How long in seconds to reset server after the Egg Hunt event in case someone gets stuck AFK.(120 is default)",
+                getValue: () => this.Config.eggFestivalTimeOut,
+                setValue: value => this.Config.eggFestivalTimeOut = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Flower Dance Count Down",
+                tooltip: () => "Number of seconds from when Flower Dance starts until the main event is triggered. Can be manually triggered as well(60 is default)",
+                getValue: () => this.Config.flowerDanceCountDownConfig,
+                setValue: value => this.Config.flowerDanceCountDownConfig = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Flower Dance Time Out",
+                tooltip: () => "How long in seconds to reset server after the Flower Dance event in case someone gets stuck AFK.(120 is default)",
+                getValue: () => this.Config.flowerDanceTimeOut,
+                setValue: value => this.Config.flowerDanceTimeOut = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Luau Count Down",
+                tooltip: () => "Number of seconds from when the Luau starts until the main event is triggered. Can be manually triggered as well(60) is default)",
+                getValue: () => this.Config.luauSoupCountDownConfig,
+                setValue: value => this.Config.luauSoupCountDownConfig = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Luau Time Out",
+                tooltip: () => "How long in seconds to reset server after the Luau Soup Tasting event in case someone gets stuck AFK.(120 is default)",
+                getValue: () => this.Config.luauTimeOut,
+                setValue: value => this.Config.luauTimeOut = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Dance of the Moonlight Jellies Count Down",
+                tooltip: () => "Number of seconds from when the Dance of the Moonlight Jellies starts until the main event is triggered. Can be manually triggered as well(60) is default)",
+                getValue: () => this.Config.jellyDanceCountDownConfig,
+                setValue: value => this.Config.jellyDanceCountDownConfig = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Dance of the Moonlight Jellies Time Out",
+                tooltip: () => "How long in seconds to reset server after the Dance of the Moonlight Jellies event in case someone gets stuck AFK.(120 is default)",
+                getValue: () => this.Config.danceOfJelliesTimeOut,
+                setValue: value => this.Config.danceOfJelliesTimeOut = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Stardew Valley Fair Count Down",
+                tooltip: () => "Number of seconds from when the Stardew Valley Fair starts until the main event is triggered. Can be manually triggered as well(60) is default)",
+                getValue: () => this.Config.grangeDisplayCountDownConfig,
+                setValue: value => this.Config.grangeDisplayCountDownConfig = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Stardew Valley Fair Time Out",
+                tooltip: () => "How long in seconds to reset server after the Grange display judging event in case someone gets stuck AFK.(120 is default)",
+                getValue: () => this.Config.fairTimeOut,
+                setValue: value => this.Config.fairTimeOut = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Festival of Ice Count Down",
+                tooltip: () => "Number of seconds from when the Festival of Ice starts until the main event is triggered. Can be manually triggered as well(60 is default)",
+                getValue: () => this.Config.iceFishingCountDownConfig,
+                setValue: value => this.Config.iceFishingCountDownConfig = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Festival of Ice Time Out",
+                tooltip: () => "How long in seconds to reset server after the ice fishing event in case someone gets stuck AFK.(120 is default)",
+                getValue: () => this.Config.festivalOfIceTimeOut,
+                setValue: value => this.Config.festivalOfIceTimeOut = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Feast of the Winter Star Count Down",
+                tooltip: () => "Number of seconds from when the Feast of the Winter Star starts until the main event is triggered. Can be manually triggered as well(60 is default)",
+                getValue: () => this.Config.winterFeastCountDown,
+                setValue: value => this.Config.winterFeastCountDown = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Feast of the Winter Star Time Out",
+                tooltip: () => "How long in seconds to reset server after Feast of the Winter Star starts in case someone gets stuck AFK.(900 is default)",
+                getValue: () => this.Config.winterStarTimeOut,
+                setValue: value => this.Config.winterStarTimeOut = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "End of Day Reset",
+                tooltip: () => "If the server gets stuck at the 'End of Day' it resets after this amount of seconds to prevent locking up completely(300 is default)",
+                getValue: () => this.Config.endofdayTimeOut,
+                setValue: value => this.Config.endofdayTimeOut = value,
+                min: 60,
+                max: 1200,
+                interval: 30
+            );
+
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Spirit's Eve Time Out",
+                tooltip: () => "How long in seconds to reset server after Spirit's Eve starts in case someone gets stuck AFK.(900 is default)",
+                getValue: () => this.Config.spiritsEveTimeOut,
+                setValue: value => this.Config.spiritsEveTimeOut = value,
+                min: 30,
+                max: 1200,
+                interval: 30
+            );
+            }
+
         }
 
 
@@ -847,11 +1144,11 @@ namespace StardewUnattendedServer
                 {
                     var messagetoconvert = messages[messages.Count - 1].message;
                     string actualmessage = ChatMessage.makeMessagePlaintext(messagetoconvert, true);
-                    string lastFragment = null;
+                    string lastFragment = "";
                     if (actualmessage.Split(' ').Count() > 1)
                         lastFragment = actualmessage.Split(' ')[1];
 
-                    if (lastFragment != null)
+                    if (lastFragment != "")
                     {
                         if (lastFragment == "!sleep")
                         {

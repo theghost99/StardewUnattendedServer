@@ -25,9 +25,10 @@ namespace StardewUnattendedServer.Framework
         public int jellyDanceCountDownConfig { get; set; } = 60;
         public int grangeDisplayCountDownConfig { get; set; } = 60;
         public int iceFishingCountDownConfig { get; set; } = 60;
+        public int winterFeastCountDown { get; set; } = 60;
 
         public int endofdayTimeOut { get; set; } = 300;
-        public int fairTimeOut { get; set; } = 1200;
+        public int fairTimeOut { get; set; } = 300;
         public int spiritsEveTimeOut { get; set; } = 900;
         public int winterStarTimeOut { get; set; } = 900;
 
