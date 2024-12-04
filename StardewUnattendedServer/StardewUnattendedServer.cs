@@ -44,7 +44,13 @@ namespace StardewUnattendedServer
         public int connectionsCount = 1;
 
         private bool eventCommandUsed;
-
+        private string sleepKeyword = "!";
+        private string festivalKeyword = "!";
+        private string eventKeyword = "!";
+        private string leaveKeyword = "!";
+        private string unstickKeyword = "!";
+        private string pauseKeyword = "!";
+        private string unpauseKeyword = "!";
         private bool eggHuntAvailable; //is egg festival ready start timer for triggering eggHunt Event
         private int eggHuntCountDown; //to trigger egg hunt after set time
 
@@ -118,6 +124,13 @@ namespace StardewUnattendedServer
             helper.Events.Input.ButtonPressed += this.OnButtonPressed;
             helper.Events.Display.Rendered += this.OnRendered;
             helper.Events.Specialized.UnvalidatedUpdateTicked += OnUnvalidatedUpdateTick; //used bc only thing that gets throug save window
+            sleepKeyword += this.Config.sleepKeyword;
+            festivalKeyword += this.Config.festivalKeyword;
+            eventKeyword += this.Config.eventKeyword;
+            leaveKeyword += this.Config.leaveKeyword;
+            unstickKeyword += this.Config.unstickKeyword;
+            pauseKeyword += this.Config.pauseKeyword;
+            unpauseKeyword += this.Config.unpauseKeyword;
         }
 
         private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
@@ -135,29 +148,29 @@ namespace StardewUnattendedServer
 
                 configMenu.AddSectionTitle(
                     mod: this.ModManifest,
-                    text: () => "Main Server Settings"
+                    text: () => Helper.Translation.Get("config.mainTitle")
                 );
 
                 configMenu.AddKeybind(
                     mod: this.ModManifest,
-                    name: () => "Toggle Server Key Binding",
-                    tooltip: () => "The keyboard button for toggling the server on and off ('F9' is default)",
+                    name: () => Helper.Translation.Get("config.serverKeyName"),
+                    tooltip: () => Helper.Translation.Get("config.serverKeyTT"),
                     getValue: () => this.Config.serverHotKey,
                     setValue: value => this.Config.serverHotKey = value
                 );
 
                 configMenu.AddBoolOption(
                     mod: this.ModManifest,
-                    name: () => "Auto Level Up",
-                    tooltip: () => "Whether the host automatically levels everything to 10 when the server is active (Enabled is default)",
+                    name: () => Helper.Translation.Get("config.serverAutoName"),
+                    tooltip: () => Helper.Translation.Get("config.serverAutoTT"),
                     getValue: () => this.Config.autoLevel,
                     setValue: value => this.Config.autoLevel = value
                 );
 
                 configMenu.AddNumberOption(
                     mod: this.ModManifest,
-                    name: () => "House Upgrade Level",
-                    tooltip: () => "What level of upgrade will the host's house be (0 is default)",
+                    name: () => Helper.Translation.Get("config.serverHouseName"),
+                    tooltip: () => Helper.Translation.Get("config.serverHouseTT"),
                     getValue: () => this.Config.upgradeHouse,
                     setValue: value => this.Config.upgradeHouse = value,
                     min: 0,
@@ -166,252 +179,323 @@ namespace StardewUnattendedServer
                 );
 
                 configMenu.AddTextOption(
-                    mod: ModManifest,
-                    name: () => "Pet Name",
-                    tooltip: () => "Name of the pet ('Qwerty' is default)",
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverPetName"),
+                    tooltip: () => Helper.Translation.Get("config.serverPetTT"),
                     getValue: () => this.Config.petname,
                     setValue: value => this.Config.petname = value
                 );
 
                 configMenu.AddBoolOption(
-                    mod: ModManifest,
-                    name: () => "Mushroom Cave",
-                    tooltip: () => "Sets cave as mushroom (enabled) or bat (disabled). Set before run (Enabled is default)",
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverCaveName"),
+                    tooltip: () => Helper.Translation.Get("config.serverCaveTT"),
                     getValue: () => this.Config.farmcavechoicemushrooms,
                     setValue: value => this.Config.farmcavechoicemushrooms = value
                 );
 
                 configMenu.AddBoolOption(
-                    mod: ModManifest,
-                    name: () => "Community Centre Run",
-                    tooltip: () => "host will attempt Community Centre run, disabled will do Joja run (Enabled is default)",
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverCCName"),
+                    tooltip: () => Helper.Translation.Get("config.serverCCTT"),
                     getValue: () => this.Config.communitycenterrun,
                     setValue: value => this.Config.communitycenterrun = value
                 );
 
                 configMenu.AddNumberOption(
-                    mod: ModManifest,
-                    name: () => "Sleep Time",
-                    tooltip: () => "Time for the host to go to sleep automatically (2200 is default)",
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverSleepName"),
+                    tooltip: () => Helper.Translation.Get("config.serverSleepTT"),
                     getValue: () => this.Config.timeOfDayToSleep,
                 setValue: value => this.Config.timeOfDayToSleep = value,
                 min: 0610,
                 max: 2600,
                 interval: 10
-            );
+                );
 
-            configMenu.AddBoolOption(
-                mod: ModManifest,
-                name: () => "Lock Player Chests",
-                tooltip: () => "While servermode is on, players can not access the chests or inventory in other player's cabins (Enabled is default)",
-                getValue: () => this.Config.lockPlayerChests,
-                setValue: value => this.Config.lockPlayerChests = value
-            );
+                configMenu.AddBoolOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverChestName"),
+                    tooltip: () => Helper.Translation.Get("config.serverChestTT"),
+                    getValue: () => this.Config.lockPlayerChests,
+                    setValue: value => this.Config.lockPlayerChests = value
+                );
 
-            configMenu.AddBoolOption(
-                mod: ModManifest,
-                name: () => "Clients Can Pause",
-                tooltip: () => "Clients can type !pause/!unpause into chat (Disabled is default)",
-                getValue: () => this.Config.clientsCanPause,
-                setValue: value => this.Config.clientsCanPause = value
-            );
+                configMenu.AddBoolOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverPauseName"),
+                    tooltip: () => Helper.Translation.Get("config.serverPauseTT"),
+                    getValue: () => this.Config.clientsCanPause,
+                    setValue: value => this.Config.clientsCanPause = value
+                );
 
-            configMenu.AddBoolOption(
-                mod: ModManifest,
-                name: () => "Copy Invite Code to Clipboard",
-                tooltip: () => "Copies current invite code to your computer's clipboard once a minute (Enabled is default)",
-                getValue: () => this.Config.copyInviteCodeToClipboard,
-                setValue: value => this.Config.copyInviteCodeToClipboard = value
-            );
+                configMenu.AddBoolOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverInviteCodeName"),
+                    tooltip: () => Helper.Translation.Get("config.serverInviteCodeTT"),
+                    getValue: () => this.Config.copyInviteCodeToClipboard,
+                    setValue: value => this.Config.copyInviteCodeToClipboard = value
+                );
 
-            configMenu.AddBoolOption(
-                mod: ModManifest,
-                name: () => "Festivals",
-                tooltip: () => "Host will go to festivals automatically (Enabled is default)",
-                getValue: () => this.Config.festivalsOn,
-                setValue: value => this.Config.festivalsOn = value
-            );
+                configMenu.AddBoolOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverFestivalsName"),
+                    tooltip: () => Helper.Translation.Get("config.serverFestivalsTT"),
+                    getValue: () => this.Config.festivalsOn,
+                    setValue: value => this.Config.festivalsOn = value
+                );
 
-            configMenu.AddSectionTitle(
-                mod: this.ModManifest,
-                text: () => "Festival and Event Settings"
-            );
+                configMenu.AddSectionTitle(
+                    mod: this.ModManifest,
+                    text: () => Helper.Translation.Get("config.serverKeyTitle")
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Egg Hunt Count Down",
-                tooltip: () => "Number of seconds from when the Egg Festival starts until the main event is triggered. Can be manually triggered as well(60 is default)",
-                getValue: () => this.Config.eggHuntCountDownConfig,
-                setValue: value => this.Config.eggHuntCountDownConfig = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddSectionTitle(
+                    mod: this.ModManifest,
+                    text: () => Helper.Translation.Get("config.serverKeySubTitle")
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Egg Hunt Time Out",
-                tooltip: () => "How long in seconds to reset server after the Egg Hunt event in case someone gets stuck AFK.(120 is default)",
-                getValue: () => this.Config.eggFestivalTimeOut,
-                setValue: value => this.Config.eggFestivalTimeOut = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddTextOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverSleepWordName"),
+                    tooltip: () => Helper.Translation.Get("config.serverSleepWordTT"),
+                    getValue: () => this.Config.sleepKeyword,
+                    setValue: value => this.Config.sleepKeyword = value
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Flower Dance Count Down",
-                tooltip: () => "Number of seconds from when Flower Dance starts until the main event is triggered. Can be manually triggered as well(60 is default)",
-                getValue: () => this.Config.flowerDanceCountDownConfig,
-                setValue: value => this.Config.flowerDanceCountDownConfig = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddTextOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverFestivalWordName"),
+                    tooltip: () => Helper.Translation.Get("config.serverFestivalWordTT"),
+                    getValue: () => this.Config.festivalKeyword,
+                    setValue: value => this.Config.festivalKeyword = value
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Flower Dance Time Out",
-                tooltip: () => "How long in seconds to reset server after the Flower Dance event in case someone gets stuck AFK.(120 is default)",
-                getValue: () => this.Config.flowerDanceTimeOut,
-                setValue: value => this.Config.flowerDanceTimeOut = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddTextOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverEventWordName"),
+                    tooltip: () => Helper.Translation.Get("config.serverEventWordTT"),
+                    getValue: () => this.Config.eventKeyword,
+                    setValue: value => this.Config.eventKeyword = value
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Luau Count Down",
-                tooltip: () => "Number of seconds from when the Luau starts until the main event is triggered. Can be manually triggered as well(60) is default)",
-                getValue: () => this.Config.luauSoupCountDownConfig,
-                setValue: value => this.Config.luauSoupCountDownConfig = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddTextOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverLeaveWordName"),
+                    tooltip: () => Helper.Translation.Get("config.serverLeaveWordTT"),
+                    getValue: () => this.Config.leaveKeyword,
+                    setValue: value => this.Config.leaveKeyword = value
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Luau Time Out",
-                tooltip: () => "How long in seconds to reset server after the Luau Soup Tasting event in case someone gets stuck AFK.(120 is default)",
-                getValue: () => this.Config.luauTimeOut,
-                setValue: value => this.Config.luauTimeOut = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddTextOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverUnstickWordName"),
+                    tooltip: () => Helper.Translation.Get("config.serverUnstickWordTT"),
+                    getValue: () => this.Config.unstickKeyword,
+                    setValue: value => this.Config.unstickKeyword = value
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Dance of the Moonlight Jellies Count Down",
-                tooltip: () => "Number of seconds from when the Dance of the Moonlight Jellies starts until the main event is triggered. Can be manually triggered as well(60) is default)",
-                getValue: () => this.Config.jellyDanceCountDownConfig,
-                setValue: value => this.Config.jellyDanceCountDownConfig = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddTextOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverPauseWordName"),
+                    tooltip: () => Helper.Translation.Get("config.serverPauseWordTT"),
+                    getValue: () => this.Config.pauseKeyword,
+                    setValue: value => this.Config.pauseKeyword = value
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Dance of the Moonlight Jellies Time Out",
-                tooltip: () => "How long in seconds to reset server after the Dance of the Moonlight Jellies event in case someone gets stuck AFK.(120 is default)",
-                getValue: () => this.Config.danceOfJelliesTimeOut,
-                setValue: value => this.Config.danceOfJelliesTimeOut = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddTextOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverUnpauseWordName"),
+                    tooltip: () => Helper.Translation.Get("config.serverUnpauseWordTT"),
+                    getValue: () => this.Config.unpauseKeyword,
+                    setValue: value => this.Config.unpauseKeyword = value
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Stardew Valley Fair Count Down",
-                tooltip: () => "Number of seconds from when the Stardew Valley Fair starts until the main event is triggered. Can be manually triggered as well(60) is default)",
-                getValue: () => this.Config.grangeDisplayCountDownConfig,
-                setValue: value => this.Config.grangeDisplayCountDownConfig = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddSectionTitle(
+                    mod: this.ModManifest,
+                    text: () => Helper.Translation.Get("config.serverFestivalCDTitle")
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Stardew Valley Fair Time Out",
-                tooltip: () => "How long in seconds to reset server after the Grange display judging event in case someone gets stuck AFK.(120 is default)",
-                getValue: () => this.Config.fairTimeOut,
-                setValue: value => this.Config.fairTimeOut = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.event.egg"),
+                    tooltip: () => Helper.Translation.Get("config.serverCDTT"),
+                    getValue: () => this.Config.eggHuntCountDownConfig,
+                    setValue: value => this.Config.eggHuntCountDownConfig = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Festival of Ice Count Down",
-                tooltip: () => "Number of seconds from when the Festival of Ice starts until the main event is triggered. Can be manually triggered as well(60 is default)",
-                getValue: () => this.Config.iceFishingCountDownConfig,
-                setValue: value => this.Config.iceFishingCountDownConfig = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.event.flower"),
+                    tooltip: () => Helper.Translation.Get("config.serverCDTT"),
+                    getValue: () => this.Config.flowerDanceCountDownConfig,
+                    setValue: value => this.Config.flowerDanceCountDownConfig = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Festival of Ice Time Out",
-                tooltip: () => "How long in seconds to reset server after the ice fishing event in case someone gets stuck AFK.(120 is default)",
-                getValue: () => this.Config.festivalOfIceTimeOut,
-                setValue: value => this.Config.festivalOfIceTimeOut = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.luau.name"),
+                    tooltip: () => Helper.Translation.Get("config.serverCDTT"),
+                    getValue: () => this.Config.luauSoupCountDownConfig,
+                    setValue: value => this.Config.luauSoupCountDownConfig = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Feast of the Winter Star Count Down",
-                tooltip: () => "Number of seconds from when the Feast of the Winter Star starts until the main event is triggered. Can be manually triggered as well(60 is default)",
-                getValue: () => this.Config.winterFeastCountDown,
-                setValue: value => this.Config.winterFeastCountDown = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.event.dance"),
+                    tooltip: () => Helper.Translation.Get("config.serverCDTT"),
+                    getValue: () => this.Config.jellyDanceCountDownConfig,
+                    setValue: value => this.Config.jellyDanceCountDownConfig = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Feast of the Winter Star Time Out",
-                tooltip: () => "How long in seconds to reset server after Feast of the Winter Star starts in case someone gets stuck AFK.(900 is default)",
-                getValue: () => this.Config.winterStarTimeOut,
-                setValue: value => this.Config.winterStarTimeOut = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.fair.name"),
+                    tooltip: () => Helper.Translation.Get("config.serverCDTT"),
+                    getValue: () => this.Config.grangeDisplayCountDownConfig,
+                    setValue: value => this.Config.grangeDisplayCountDownConfig = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "End of Day Reset",
-                tooltip: () => "If the server gets stuck at the 'End of Day' it resets after this amount of seconds to prevent locking up completely(300 is default)",
-                getValue: () => this.Config.endofdayTimeOut,
-                setValue: value => this.Config.endofdayTimeOut = value,
-                min: 60,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.ice.name"),
+                    tooltip: () => Helper.Translation.Get("config.serverCDTT"),
+                    getValue: () => this.Config.iceFishingCountDownConfig,
+                    setValue: value => this.Config.iceFishingCountDownConfig = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
 
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Spirit's Eve Time Out",
-                tooltip: () => "How long in seconds to reset server after Spirit's Eve starts in case someone gets stuck AFK.(900 is default)",
-                getValue: () => this.Config.spiritsEveTimeOut,
-                setValue: value => this.Config.spiritsEveTimeOut = value,
-                min: 30,
-                max: 1200,
-                interval: 30
-            );
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.winterStar.name"),
+                    tooltip: () => Helper.Translation.Get("config.serverCDTT"),
+                    getValue: () => this.Config.winterFeastCountDown,
+                    setValue: value => this.Config.winterFeastCountDown = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
+
+                configMenu.AddSectionTitle(
+                    mod: this.ModManifest,
+                    text: () => Helper.Translation.Get("config.serverFestivalTOTitle")
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.event.egg"),
+                    tooltip: () => Helper.Translation.Get("config.serverTOTT", new { eventName = Helper.Translation.Get("festival.event.egg") }),
+                    getValue: () => this.Config.eggFestivalTimeOut,
+                    setValue: value => this.Config.eggFestivalTimeOut = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.event.flower"),
+                    tooltip: () => Helper.Translation.Get("config.serverTOTT", new { eventName = Helper.Translation.Get("festival.event.flower") }),
+                    getValue: () => this.Config.flowerDanceTimeOut,
+                    setValue: value => this.Config.flowerDanceTimeOut = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.luau.name"),
+                    tooltip: () => Helper.Translation.Get("config.serverTOTT", new { eventName = Helper.Translation.Get("festival.luau.name") }),
+                    getValue: () => this.Config.luauTimeOut,
+                    setValue: value => this.Config.luauTimeOut = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.event.dance"),
+                    tooltip: () => Helper.Translation.Get("config.serverTOTT", new { eventName = Helper.Translation.Get("festival.event.dance") }),
+                    getValue: () => this.Config.danceOfJelliesTimeOut,
+                    setValue: value => this.Config.danceOfJelliesTimeOut = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.fair.name"),
+                    tooltip: () => Helper.Translation.Get("config.serverTOTT", new { eventName = Helper.Translation.Get("festival.fair.name") }),
+                    getValue: () => this.Config.fairTimeOut,
+                    setValue: value => this.Config.fairTimeOut = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.ice.name"),
+                    tooltip: () => Helper.Translation.Get("config.serverTOTT", new { eventName = Helper.Translation.Get("festival.ice.name") }),
+                    getValue: () => this.Config.festivalOfIceTimeOut,
+                    setValue: value => this.Config.festivalOfIceTimeOut = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.winterStar.name"),
+                    tooltip: () => Helper.Translation.Get("config.serverTOTT", new { eventName = Helper.Translation.Get("festival.winterStar.name") }),
+                    getValue: () => this.Config.winterStarTimeOut,
+                    setValue: value => this.Config.winterStarTimeOut = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("festival.spiritsEve.name"),
+                    tooltip: () => Helper.Translation.Get("config.serverSpiritTOTT"),
+                    getValue: () => this.Config.spiritsEveTimeOut,
+                    setValue: value => this.Config.spiritsEveTimeOut = value,
+                    min: 30,
+                    max: 1200,
+                    interval: 30
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => Helper.Translation.Get("config.serverEndOfDayName"),
+                    tooltip: () => Helper.Translation.Get("config.serverEndOfDayTT"),
+                    getValue: () => this.Config.endofdayTimeOut,
+                    setValue: value => this.Config.endofdayTimeOut = value,
+                    min: 60,
+                    max: 1200,
+                    interval: 30
+                );
             }
 
         }
@@ -470,7 +554,7 @@ namespace StardewUnattendedServer
                 }
                 ////////////////////////////////////////
                 IsEnabled = true;
-                Game1.chatBox.addInfoMessage("The Host is in Server Mode!");
+                Game1.chatBox.addInfoMessage(Helper.Translation.Get("host.serverMode"));
                 this.Monitor.Log("Server Mode On!", LogLevel.Info);
             }
 
@@ -518,11 +602,13 @@ namespace StardewUnattendedServer
             if (Game1.options.enableServer && IsEnabled)
             {
                 int connectionsCount = Game1.server.connectionsCount;
-                DrawTextBox(5, 100, Game1.dialogueFont, "Server Mode On");
-                DrawTextBox(5, 180, Game1.dialogueFont, $"Press {this.Config.serverHotKey} On/Off");
-                int profitMargin = this.Config.profitmargin;
-                DrawTextBox(5, 260, Game1.dialogueFont, $"Profit Margin: {profitMargin}%");
-                DrawTextBox(5, 340, Game1.dialogueFont, $"{connectionsCount} Players Online");
+                DrawTextBox(5, 100, Game1.dialogueFont, Helper.Translation.Get("server.on"));
+                DrawTextBox(5, 180, Game1.dialogueFont, Helper.Translation.Get("server.key", new { key = this.Config.serverHotKey }));
+                //int profitMargin = this.Config.profitmargin;
+                DrawTextBox(5, 180, Game1.dialogueFont, Helper.Translation.Get("server.profit", new { profit = this.Config.profitmargin }));
+                //DrawTextBox(5, 260, Game1.dialogueFont, $"Profit Margin: {profitMargin}%");
+                DrawTextBox(5, 180, Game1.dialogueFont, Helper.Translation.Get("server.players", new { players = connectionsCount }));
+                //DrawTextBox(5, 340, Game1.dialogueFont, $"{connectionsCount} Players Online");
                 if (Game1.server.getInviteCode() != null)
                 {
                     string inviteCode = Game1.server.getInviteCode();
@@ -542,10 +628,10 @@ namespace StardewUnattendedServer
 
 
                     this.Monitor.Log("Server Mode On!", LogLevel.Info);
-                    Game1.chatBox.addInfoMessage("The Host is in Server Mode!");
+                    Game1.chatBox.addInfoMessage(Helper.Translation.Get("host.serverMode"));
 
                     Game1.displayHUD = true;
-                    Game1.addHUDMessage(new HUDMessage("Server Mode On!"));
+                    Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("server.on")));
 
                     Game1.options.pauseWhenOutOfFocus = false;
 
@@ -588,7 +674,7 @@ namespace StardewUnattendedServer
                             Game1.player.setSkillLevel("Combat", 10);
                     }
                     ///////////////////////////////////////////
-                    Game1.addHUDMessage(new HUDMessage("Server Mode COMPLETE!"));
+                    Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("server.complete")));
                     ///////////////////////////////////////////
 
                 }
@@ -597,10 +683,10 @@ namespace StardewUnattendedServer
                     IsEnabled = false;
                     this.Monitor.Log("The server off!", LogLevel.Info);
 
-                    Game1.chatBox.addInfoMessage("The Host has returned!");
+                    Game1.chatBox.addInfoMessage(Helper.Translation.Get("host.returned"));
 
                     Game1.displayHUD = true;
-                    Game1.addHUDMessage(new HUDMessage("Server Mode Off!"));
+                    Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("server.off")));
 
                     //set player levels to stored levels
 
@@ -696,17 +782,17 @@ namespace StardewUnattendedServer
                     string actualmessage = ChatMessage.makeMessagePlaintext(messagetoconvert, true);
                     string lastFragment = actualmessage.Split(' ')[1];
 
-                    if (lastFragment != null && lastFragment == "!pause")
+                    if (lastFragment != null && lastFragment == pauseKeyword)
                     {
                         Game1.netWorldState.Value.IsPaused = true;
                         clientPaused = true;
-                        this.SendChatMessage("Game Paused");
+                        this.SendChatMessage(Helper.Translation.Get("game.paused"));
                     }
-                    if (lastFragment != null && lastFragment == "!unpause")
+                    if (lastFragment != null && lastFragment == unpauseKeyword)
                     {
                         Game1.netWorldState.Value.IsPaused = false;
                         clientPaused = false;
-                        this.SendChatMessage("Game UnPaused");
+                        this.SendChatMessage(Helper.Translation.Get("game.unpaused"));
                     }
                 }
             }
@@ -850,15 +936,18 @@ namespace StardewUnattendedServer
                 }
                 eggHuntCountDown += 1;
 
-                float chatEgg = this.Config.eggHuntCountDownConfig / 60f;
+                //float chatEgg = this.Config.eggHuntCountDownConfig / 60f;
+                string chatEgg = $"{(this.Config.eggHuntCountDownConfig / 60f):0.#}";
                 if (eggHuntCountDown == 1)
                 {
-                    this.SendChatMessage($"The Egg Hunt will begin in {chatEgg:0.#} minutes.");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventBegin", new { eventName = Helper.Translation.Get("festival.event.egg"), eventTime = chatEgg}));
+                    //this.SendChatMessage($"The Egg Hunt will begin in {chatEgg:0.#} minutes.");
                 }
 
                 if (eggHuntCountDown == this.Config.eggHuntCountDownConfig + 1)
                 {
-                    this.SendChatMessage("The Egg Hunt is starting!!");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventStarting", new { eventName = Helper.Translation.Get("festival.event.egg") }));
+                    //this.SendChatMessage("The Egg Hunt is starting!!");
                     this.Helper.Reflection.GetMethod(Game1.CurrentEvent, "answerDialogueQuestion").Invoke(Game1.getCharacterFromName("Lewis"), "yes");
                 }
                 if (eggHuntCountDown >= this.Config.eggHuntCountDownConfig + 5)
@@ -887,15 +976,18 @@ namespace StardewUnattendedServer
 
                 flowerDanceCountDown += 1;
 
-                float chatFlower = this.Config.flowerDanceCountDownConfig / 60f;
+                //float chatFlower = this.Config.flowerDanceCountDownConfig / 60f;
+                string chatFlower = $"{(this.Config.flowerDanceCountDownConfig / 60f):0.#}";
                 if (flowerDanceCountDown == 1)
                 {
-                    this.SendChatMessage($"The Flower Dance will begin in {chatFlower:0.#} minutes.");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventBegin", new { eventName = Helper.Translation.Get("festival.event.flower"), eventTime = chatFlower}));
+                    //this.SendChatMessage($"The Flower Dance will begin in {chatFlower:0.#} minutes.");
                 }
 
                 if (flowerDanceCountDown == this.Config.flowerDanceCountDownConfig + 1)
                 {
-                    this.SendChatMessage("The Flower Dance is starting!!");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventStarting", new { eventName = Helper.Translation.Get("festival.event.flower") }));
+                    //this.SendChatMessage("The Flower Dance is starting!!");
                     this.Helper.Reflection.GetMethod(Game1.CurrentEvent, "answerDialogueQuestion").Invoke(Game1.getCharacterFromName("Lewis"), "yes");
                 }
                 if (flowerDanceCountDown >= this.Config.flowerDanceCountDownConfig + 5)
@@ -926,10 +1018,12 @@ namespace StardewUnattendedServer
 
                 luauSoupCountDown += 1;
 
-                float chatSoup = this.Config.luauSoupCountDownConfig / 60f;
+                //float chatSoup = this.Config.luauSoupCountDownConfig / 60f;
+                string chatSoup = $"{(this.Config.luauSoupCountDownConfig / 60f):0.#}";
                 if (luauSoupCountDown == 1)
                 {
-                    this.SendChatMessage($"The Soup Tasting will begin in {chatSoup:0.#} minutes.");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventBegin", new { eventName = Helper.Translation.Get("festival.event.luau"), eventTime = chatSoup}));
+                    //this.SendChatMessage($"The Soup Tasting will begin in {chatSoup:0.#} minutes.");
 
                     //add iridium starfruit to soup
                     var item = new SObject("Starfruit", 1, false, -1, 3);
@@ -939,7 +1033,8 @@ namespace StardewUnattendedServer
 
                 if (luauSoupCountDown == this.Config.luauSoupCountDownConfig + 1)
                 {
-                    this.SendChatMessage("The Soup Tasting is starting!!");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventStarting", new { eventName = Helper.Translation.Get("festival.event.luau") }));
+                    //this.SendChatMessage("The Soup Tasting is starting!!");
                     this.Helper.Reflection.GetMethod(Game1.CurrentEvent, "answerDialogueQuestion").Invoke(Game1.getCharacterFromName("Lewis"), "yes");
                 }
                 if (luauSoupCountDown >= this.Config.luauSoupCountDownConfig + 5)
@@ -967,15 +1062,18 @@ namespace StardewUnattendedServer
 
                 jellyDanceCountDown += 1;
 
-                float chatJelly = this.Config.jellyDanceCountDownConfig / 60f;
+                //float chatJelly = this.Config.jellyDanceCountDownConfig / 60f;
+                string chatJelly = $"{(this.Config.jellyDanceCountDownConfig / 60f):0.#}";
                 if (jellyDanceCountDown == 1)
                 {
-                    this.SendChatMessage($"The Dance of the Moonlight Jellies will begin in {chatJelly:0.#} minutes.");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventBegin", new { eventName = Helper.Translation.Get("festival.event.dance"), eventTime = chatJelly}));
+                    //this.SendChatMessage($"The Dance of the Moonlight Jellies will begin in {chatJelly:0.#} minutes.");
                 }
 
                 if (jellyDanceCountDown == this.Config.jellyDanceCountDownConfig + 1)
                 {
-                    this.SendChatMessage("The Dance of the Moonlight Jellies is starting!!");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventStarting", new { eventName = Helper.Translation.Get("festival.event.dance") }));
+                    //this.SendChatMessage("The Dance of the Moonlight Jellies is starting!!");
                     this.Helper.Reflection.GetMethod(Game1.CurrentEvent, "answerDialogueQuestion").Invoke(Game1.getCharacterFromName("Lewis"), "yes");
                 }
                 if (jellyDanceCountDown >= this.Config.jellyDanceCountDownConfig + 5)
@@ -1005,23 +1103,24 @@ namespace StardewUnattendedServer
                 //festival timeout code
                 if (festivalTicksForReset == this.Config.fairTimeOut - 120)
                 {
-                    this.SendChatMessage("2 minutes to the exit or");
-                    this.SendChatMessage("everyone will be kicked.");
+                    this.SendChatMessage(Helper.Translation.Get("festival.ending"));
                 }
                 if (festivalTicksForReset >= this.Config.fairTimeOut)
                 {
                     Game1.options.setServerMode("offline");
                 }
                 ///////////////////////////////////////////////
-                float chatGrange = this.Config.grangeDisplayCountDownConfig / 60f;
+                //float chatGrange = this.Config.grangeDisplayCountDownConfig / 60f;
+                string chatGrange = $"{(this.Config.grangeDisplayCountDownConfig / 60f):0.#}";
                 if (grangeDisplayCountDown == 1)
                 {
-                    this.SendChatMessage($"The Grange Judging will begin in {chatGrange:0.#} minutes.");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventBegin", new { eventName = Helper.Translation.Get("festival.event.grange"), eventTime = chatGrange}));
+                    //this.SendChatMessage($"The Grange Judging will begin in {chatGrange:0.#} minutes.");
                 }
 
                 if (grangeDisplayCountDown == this.Config.grangeDisplayCountDownConfig + 1)
                 {
-                    this.SendChatMessage("The Grange Judging is starting!!");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventStarting", new { eventName = Helper.Translation.Get("festival.event.grange") }));
                     this.Helper.Reflection.GetMethod(Game1.CurrentEvent, "answerDialogueQuestion").Invoke(Game1.getCharacterFromName("Lewis"), "yes");
                 }
                 if (grangeDisplayCountDown == this.Config.grangeDisplayCountDownConfig + 5)
@@ -1036,8 +1135,7 @@ namespace StardewUnattendedServer
                 //festival timeout code
                 if (festivalTicksForReset == this.Config.spiritsEveTimeOut - 120)
                 {
-                    this.SendChatMessage("2 minutes to the exit or");
-                    this.SendChatMessage("everyone will be kicked.");
+                    this.SendChatMessage(Helper.Translation.Get("festival.ending"));
                 }
                 if (festivalTicksForReset >= this.Config.spiritsEveTimeOut)
                 {
@@ -1058,15 +1156,15 @@ namespace StardewUnattendedServer
                 }
                 iceFishingCountDown += 1;
 
-                float chatIceFish = this.Config.iceFishingCountDownConfig / 60f;
+                string chatIceFish = $"{(this.Config.iceFishingCountDownConfig / 60f):0.#}";
                 if (iceFishingCountDown == 1)
                 {
-                    this.SendChatMessage($"The Ice Fishing Contest will begin in {chatIceFish:0.#} minutes.");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventBegin", new { eventName =  Helper.Translation.Get("festival.event.ice"), eventTime = chatIceFish}));
                 }
 
                 if (iceFishingCountDown == this.Config.iceFishingCountDownConfig + 1)
                 {
-                    this.SendChatMessage("The Ice Fishing Contest is starting!!");
+                    this.SendChatMessage(Helper.Translation.Get("festival.eventStarting", new { eventName = Helper.Translation.Get("festival.event.ice") }));
                     this.Helper.Reflection.GetMethod(Game1.CurrentEvent, "answerDialogueQuestion").Invoke(Game1.getCharacterFromName("Lewis"), "yes");
                 }
                 if (iceFishingCountDown >= this.Config.iceFishingCountDownConfig + 5)
@@ -1090,8 +1188,7 @@ namespace StardewUnattendedServer
                 //festival timeout code
                 if (festivalTicksForReset == this.Config.winterStarTimeOut - 120)
                 {
-                    this.SendChatMessage("2 minutes to the exit or");
-                    this.SendChatMessage("everyone will be kicked.");
+                    this.SendChatMessage(Helper.Translation.Get("festival.ending"));
                 }
                 if (festivalTicksForReset >= this.Config.winterStarTimeOut)
                 {
@@ -1150,22 +1247,22 @@ namespace StardewUnattendedServer
 
                     if (lastFragment != "")
                     {
-                        if (lastFragment == "!sleep")
+                        if (lastFragment == sleepKeyword)
                         {
                             if (currentTime >= this.Config.timeOfDayToSleep)
                             {
                                 GoToBed();
-                                this.SendChatMessage("Trying to go to bed.");
+                                this.SendChatMessage(Helper.Translation.Get("host.toSleep"));
                             }
                             else
                             {
-                                this.SendChatMessage("It's too early.");
-                                this.SendChatMessage($"Try after {this.Config.timeOfDayToSleep}.");
+                                this.SendChatMessage(Helper.Translation.Get("sleep.tooEarly"));
+                                this.SendChatMessage(Helper.Translation.Get("sleep.after", new { sleepTime = "this.Config.timeOfDayToSleep"}));
                             }
                         }
-                        if (lastFragment == "!festival")
+                        if (lastFragment == festivalKeyword)
                         {
-                            this.SendChatMessage("Trying to go to Festival.");
+                            this.SendChatMessage(Helper.Translation.Get("host.toFestival"));
 
                             if (currentDate == eggFestival)
                             {
@@ -1202,10 +1299,10 @@ namespace StardewUnattendedServer
                             }
                             else
                             {
-                                this.SendChatMessage("Festival Not Ready.");
+                                this.SendChatMessage(Helper.Translation.Get("festival.notReady"));
                             }
                         }
-                        if (lastFragment == "!event")
+                        if (lastFragment == eventKeyword)
                         {
                             if (Game1.CurrentEvent != null && Game1.CurrentEvent.isFestival)
                             {
@@ -1252,31 +1349,31 @@ namespace StardewUnattendedServer
                             }
                             else
                             {
-                                this.SendChatMessage("I'm not at a Festival.");
+                                this.SendChatMessage(Helper.Translation.Get("host.noFestival"));
                             }
                         }
-                        if (lastFragment == "!leave")
+                        if (lastFragment == leaveKeyword)
                         {
                             if (Game1.CurrentEvent != null && Game1.CurrentEvent.isFestival)
                             {
-                                this.SendChatMessage("Trying to leave Festival");
+                                this.SendChatMessage(Helper.Translation.Get("host.leaveFestival"));
                                 this.LeaveFestival();
                             }
                             else
                             {
-                                this.SendChatMessage("I'm not at a Festival.");
+                                this.SendChatMessage(Helper.Translation.Get("host.noFestival"));
                             }
                         }
-                        if (lastFragment == "!unstick")
+                        if (lastFragment == unstickKeyword)
                         {
                             if (Game1.player.currentLocation is FarmHouse)
                             {
-                                this.SendChatMessage("Warping to Farm.");
+                                this.SendChatMessage(Helper.Translation.Get("warp.farm"));
                                 Game1.warpFarmer("Farm", 64, 15, false);
                             }
                             else
                             {
-                                this.SendChatMessage("Warping inside house.");
+                                this.SendChatMessage(Helper.Translation.Get("warp.house"));
                                 getBedCoordinates();
                                 Game1.warpFarmer("Farmhouse", bedX, bedY, false);
                             }
@@ -1400,14 +1497,14 @@ namespace StardewUnattendedServer
 
                 if (gameClockTicks >= 3)
                 {
-                    if (currentDate == eggFestival && (numPlayers >= 1 || debug))   //set back to 1 after testing~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    if (currentDate == eggFestival && (numPlayers >= 1 || debug))   //set back to 1 after testing~
                     {
                         FestivalsToggle();
 
                         if (currentTime >= 600 && currentTime <= 630)
                         {
-                            this.SendChatMessage("Egg Festival Today!");
-                            this.SendChatMessage("I will not be in bed until after 2:00 P.M.");
+                            this.SendChatMessage(Helper.Translation.Get("festival.egg"));
+                            this.SendChatMessage(Helper.Translation.Get("festival.inBed", new { time = "2:00 P.M." }));
 
                         }
                         EggFestival();
@@ -1421,8 +1518,8 @@ namespace StardewUnattendedServer
 
                         if (currentTime >= 600 && currentTime <= 630)
                         {
-                            this.SendChatMessage("Flower Dance Today.");
-                            this.SendChatMessage("I will not be in bed until after 2:00 P.M.");
+                            this.SendChatMessage(Helper.Translation.Get("festival.flowerDance"));
+                            this.SendChatMessage(Helper.Translation.Get("festival.inBed", new { time = "2:00 P.M." }));
 
                         }
                         FlowerDance();
@@ -1434,8 +1531,8 @@ namespace StardewUnattendedServer
 
                         if (currentTime >= 600 && currentTime <= 630)
                         {
-                            this.SendChatMessage("Luau Today!");
-                            this.SendChatMessage("I will not be in bed until after 2:00 P.M.");
+                            this.SendChatMessage(Helper.Translation.Get("festival.luau"));
+                            this.SendChatMessage(Helper.Translation.Get("festival.inBed", new { time = "2:00 P.M." }));
                         }
                         Luau();
                     }
@@ -1446,8 +1543,8 @@ namespace StardewUnattendedServer
 
                         if (currentTime >= 600 && currentTime <= 630)
                         {
-                            this.SendChatMessage("Dance of the Moonlight Jellies Tonight!");
-                            this.SendChatMessage("I will not be in bed until after 12:00 A.M.");
+                            this.SendChatMessage(Helper.Translation.Get("festival.jellyDance"));
+                            this.SendChatMessage(Helper.Translation.Get("festival.inBed", new { time = "12:00 A.M." }));
                         }
                         DanceOfTheMoonlightJellies();
                     }
@@ -1458,8 +1555,8 @@ namespace StardewUnattendedServer
 
                         if (currentTime >= 600 && currentTime <= 630)
                         {
-                            this.SendChatMessage("Stardew Valley Fair Today!");
-                            this.SendChatMessage("I will not be in bed until after 3:00 P.M.");
+                            this.SendChatMessage(Helper.Translation.Get("festival.fair"));
+                            this.SendChatMessage(Helper.Translation.Get("festival.inBed", new { time = "3:00 P.M." }));
                         }
                         StardewValleyFair();
                     }
@@ -1470,8 +1567,8 @@ namespace StardewUnattendedServer
 
                         if (currentTime >= 600 && currentTime <= 630)
                         {
-                            this.SendChatMessage("Spirit's Eve Tonight!");
-                            this.SendChatMessage("I will not be in bed until after 12:00 A.M.");
+                            this.SendChatMessage(Helper.Translation.Get("festival.spiritsEve"));
+                            this.SendChatMessage(Helper.Translation.Get("festival.inBed", new { time = "12:00 A.M." }));
                         }
                         SpiritsEve();
                     }
@@ -1482,8 +1579,8 @@ namespace StardewUnattendedServer
 
                         if (currentTime >= 600 && currentTime <= 630)
                         {
-                            this.SendChatMessage("Festival of Ice Today!");
-                            this.SendChatMessage("I will not be in bed until after 2:00 P.M.");
+                            this.SendChatMessage(Helper.Translation.Get("festival.ice"));
+                            this.SendChatMessage(Helper.Translation.Get("festival.inBed", new { time = "2:00 P.M." }));
                         }
                         FestivalOfIce();
                     }
@@ -1494,13 +1591,13 @@ namespace StardewUnattendedServer
 
                         if (currentTime >= 600 && currentTime <= 630)
                         {
-                            this.SendChatMessage("Feast of the Winter Star Today!");
-                            this.SendChatMessage("I will not be in bed until after 2:00 P.M.");
+                            this.SendChatMessage(Helper.Translation.Get("festival.winterStar"));
+                            this.SendChatMessage(Helper.Translation.Get("festival.inBed", new { time = "2:00 P.M." }));
                         }
                         FeastOfWinterStar();
                     }
 
-                    else if (currentTime >= this.Config.timeOfDayToSleep && numPlayers >= 1)  //turn back to 1 after testing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    else if (currentTime >= this.Config.timeOfDayToSleep && numPlayers >= 1)  //turn back to 1 after testing
                     {
                         GoToBed();
                     }
@@ -1559,7 +1656,7 @@ namespace StardewUnattendedServer
                             {
                                 Game1.player.Money -= 5000;
                                 Game1.player.mailReceived.Add("JojaMember");
-                                this.SendChatMessage("Buying Joja Membership");
+                                this.SendChatMessage(Helper.Translation.Get("jjrun.membership"));
 
                             }
 
@@ -1568,7 +1665,7 @@ namespace StardewUnattendedServer
                                 Game1.player.Money -= 15000;
                                 Game1.player.mailReceived.Add("ccBoilerRoom");
                                 Game1.player.mailReceived.Add("jojaBoilerRoom");
-                                this.SendChatMessage("Buying Joja Minecarts");
+                                this.SendChatMessage(Helper.Translation.Get("jjrun.minecarts"));
 
                             }
 
@@ -1577,7 +1674,7 @@ namespace StardewUnattendedServer
                                 Game1.player.Money -= 20000;
                                 Game1.player.mailReceived.Add("ccFishTank");
                                 Game1.player.mailReceived.Add("jojaFishTank");
-                                this.SendChatMessage("Buying Joja Panning");
+                                this.SendChatMessage(Helper.Translation.Get("jjrun.panning"));
 
                             }
 
@@ -1586,7 +1683,7 @@ namespace StardewUnattendedServer
                                 Game1.player.Money -= 25000;
                                 Game1.player.mailReceived.Add("ccCraftsRoom");
                                 Game1.player.mailReceived.Add("jojaCraftsRoom");
-                                this.SendChatMessage("Buying Joja Bridge");
+                                this.SendChatMessage(Helper.Translation.Get("jjrun.bridge"));
 
                             }
 
@@ -1595,7 +1692,7 @@ namespace StardewUnattendedServer
                                 Game1.player.Money -= 35000;
                                 Game1.player.mailReceived.Add("ccPantry");
                                 Game1.player.mailReceived.Add("jojaPantry");
-                                this.SendChatMessage("Buying Joja Greenhouse");
+                                this.SendChatMessage(Helper.Translation.Get("jjrun.greenhouse"));
 
                             }
 
@@ -1604,7 +1701,7 @@ namespace StardewUnattendedServer
                                 Game1.player.Money -= 40000;
                                 Game1.player.mailReceived.Add("ccVault");
                                 Game1.player.mailReceived.Add("jojaVault");
-                                this.SendChatMessage("Buying Joja Bus");
+                                this.SendChatMessage(Helper.Translation.Get("jjrun.bus"));
                                 Game1.player.eventsSeen.Add("502261");
                             }
                         }
