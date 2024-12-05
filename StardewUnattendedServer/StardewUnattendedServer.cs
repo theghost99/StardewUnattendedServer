@@ -418,7 +418,9 @@ namespace StardewUnattendedServer
                 {
                     var messagetoconvert = messages[messages.Count - 1].message;
                     string actualmessage = ChatMessage.makeMessagePlaintext(messagetoconvert, true);
-                    string lastFragment = actualmessage.Split(' ')[1];
+                    string lastFragment = "";
+                    if (actualmessage.Split(' ').Count() > 1)
+                        lastFragment = actualmessage.Split(' ')[1];
 
                     if (lastFragment != null && lastFragment == pauseKeyword)
                     {
