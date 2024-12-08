@@ -92,5 +92,5 @@
     "config.serverTOTT": "在 {{eventName}} 事件时, 如果有人挂机, 需要多长时间才能重置服务器.(默认为 120 秒)",
     "config.serverSpiritTOTT": "在 万灵节 事件时, 如果有人挂机, 需要多长时间才能重置服务器.(默认为 900 秒)",
     "config.serverEndOfDayName": "卡在 '结束这一天' 时的重置设置",
-    "config.serverEndOfDayTT": "如果服务器卡在 '结束这一天' 的界面时, 它会在多少秒后重置服务器, 以防止完全卡住.(默认为 9300 秒)"
+    "config.serverEndOfDayTT": "如果服务器卡在 '结束这一天' 的界面时, 它会在多少秒后重置服务器, 以防止完全卡住.(默认为 300 秒)"
 }
