@@ -148,6 +148,7 @@ namespace StardewUnattendedServer
         /// <param name="e">The event data.</param>
         private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
         {
+            this.Config = this.Helper.ReadConfig<ModConfig>();
             // turns on server after the game loads
             if (Game1.IsServer)
             {
@@ -243,9 +244,9 @@ namespace StardewUnattendedServer
                 DrawTextBox(5, 100, Game1.dialogueFont, Helper.Translation.Get("server.on"));
                 DrawTextBox(5, 180, Game1.dialogueFont, Helper.Translation.Get("server.key", new { key = this.Config.serverHotKey }));
                 //int profitMargin = this.Config.profitmargin;
-                DrawTextBox(5, 180, Game1.dialogueFont, Helper.Translation.Get("server.profit", new { profit = this.Config.profitmargin }));
+                DrawTextBox(5, 260, Game1.dialogueFont, Helper.Translation.Get("server.profit", new { profit = this.Config.profitmargin }));
                 //DrawTextBox(5, 260, Game1.dialogueFont, $"Profit Margin: {profitMargin}%");
-                DrawTextBox(5, 180, Game1.dialogueFont, Helper.Translation.Get("server.players", new { players = connectionsCount }));
+                DrawTextBox(5, 340, Game1.dialogueFont, Helper.Translation.Get("server.players", new { players = connectionsCount }));
                 //DrawTextBox(5, 340, Game1.dialogueFont, $"{connectionsCount} Players Online");
                 if (Game1.server.getInviteCode() != null)
                 {
@@ -408,7 +409,6 @@ namespace StardewUnattendedServer
                 Game1.netWorldState.Value.IsPaused = false;
                 return;
             }
-
             NoClientsPause();
 
             if (this.Config.clientsCanPause)
@@ -424,14 +424,14 @@ namespace StardewUnattendedServer
 
                     if (lastFragment != null && lastFragment == pauseKeyword)
                     {
-                        Game1.netWorldState.Value.IsPaused = true;
-                        clientPaused = true;
+                        //Game1.netWorldState.Value.IsPaused = true;
+                        //clientPaused = true;
                         this.SendChatMessage(Helper.Translation.Get("game.paused"));
                     }
                     if (lastFragment != null && lastFragment == unpauseKeyword)
                     {
-                        Game1.netWorldState.Value.IsPaused = false;
-                        clientPaused = false;
+                        //Game1.netWorldState.Value.IsPaused = false;
+                        //clientPaused = false;
                         this.SendChatMessage(Helper.Translation.Get("game.unpaused"));
                     }
                 }
@@ -862,7 +862,6 @@ namespace StardewUnattendedServer
                     {
                         Game1.netWorldState.Value.IsPaused = false;
                     }
-
                 }
                 else if (numPlayers <= 0 && Game1.timeOfDay >= 610 && Game1.timeOfDay <= 2500 && currentDate != eggFestival && currentDate != flowerDance && currentDate != luau && currentDate != danceOfJellies && currentDate != stardewValleyFair && currentDate != spiritsEve && currentDate != festivalOfIce && currentDate != feastOfWinterStar)
                 {
@@ -897,7 +896,7 @@ namespace StardewUnattendedServer
                             else
                             {
                                 this.SendChatMessage(Helper.Translation.Get("sleep.tooEarly"));
-                                this.SendChatMessage(Helper.Translation.Get("sleep.after", new { sleepTime = "this.Config.timeOfDayToSleep"}));
+                                this.SendChatMessage(Helper.Translation.Get("sleep.after", new { sleepTime = this.Config.timeOfDayToSleep}));
                             }
                         }
                         if (lastFragment == festivalKeyword)
