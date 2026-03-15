@@ -37,7 +37,6 @@ namespace StardewUnattendedServer
 
         //debug tools
         private bool debug;
-        private bool shippingMenuActive;
 
         private readonly Dictionary<string, int> PreviousFriendships = new Dictionary<string, int>();  //stores friendship values
 
@@ -104,7 +103,11 @@ namespace StardewUnattendedServer
         SDate danceOfJelliesForReset = new SDate(28, "summer");
         SDate spiritsEveForReset = new SDate(27, "fall");
         //////////////////////////
-
+        
+        //handle shipping menu
+        private bool shippingMenuActive = false;
+        private int shippingMenuClickDelay = 60; // Prevents click spam waiting for shipping menu to load (game tick delay, 1 tick = 1/60s)
+        private int shippingMenuTicksUntilClick = 0;
 
 
 
@@ -117,7 +120,8 @@ namespace StardewUnattendedServer
             helper.ConsoleCommands.Add("debug_server", "Turns debug mode on/off, lets server run when no players are connected", this.DebugToggle);
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
-            helper.Events.GameLoop.Saving += this.OnSaving; // Shipping Menu handler
+            helper.Events.GameLoop.DayEnding += this.OnDayEnding;  // Shipping Menu handling (combined with OnUpdateTicked & OnSaving)
+            helper.Events.GameLoop.Saving += this.OnSaving;
             helper.Events.GameLoop.OneSecondUpdateTicked += this.OnOneSecondUpdateTicked; //game tick event handler
             helper.Events.GameLoop.TimeChanged += this.OnTimeChanged; // Time of day change handler
             helper.Events.GameLoop.UpdateTicked += this.OnUpdateTicked; //handles various events that should occur as soon as they are available
@@ -1031,6 +1035,40 @@ namespace StardewUnattendedServer
         {
             if (IsEnabled)
             {
+                // If shipping menu is on the screen, click OK
+                if (shippingMenuActive)
+                {
+                    //Wait shippingMenuDelay before clicking
+                    if (shippingMenuTicksUntilClick > 0)
+                    {
+                        shippingMenuTicksUntilClick--;
+                    }
+                    else
+                    {
+                        // Check if the active menu is the ShippingMenu
+                        if (Game1.activeClickableMenu is ShippingMenu shippingMenu)
+                        {
+                            this.Monitor.Log("Shipping Menu detected", LogLevel.Info);
+
+                            // Get the OK button from the ShippingMenu
+                            var okButton = shippingMenu.okButton;
+
+                            // If the button is available, simulate the click
+                            if (okButton != null)
+                            {
+                                this.Monitor.Log("Clicking OK on shipping menu", LogLevel.Info);
+
+                                // Simulate a left-click action on the OK button
+                                shippingMenu.receiveLeftClick(okButton.bounds.X, okButton.bounds.Y, true);
+
+                                // Reset the shipping menu click delay
+                                shippingMenuTicksUntilClick = shippingMenuClickDelay;
+
+                            }
+                        }
+                    }
+                }
+            
                 //lockPlayerChests
                 if (this.Config.lockPlayerChests)
                 {
@@ -1630,21 +1668,25 @@ namespace StardewUnattendedServer
             Game1.displayHUD = true;
         }
 
+
+        // Handles closing the shipping menu after going to bed (shipping menu appears before OnSaving is called in the game)
+        private void OnDayEnding(object? sender, EventArgs e)
+        {
+            // Log to check if we're entering the DayEnding event
+            this.Monitor.Log("Day Ending - Closing Shipping Menu", LogLevel.Info);
+            // At end of day trigger onUpdateTicked to check for the shipping menu
+            shippingMenuActive = true;
+        }
+
         /// <summary>Raised before the game begins writes data to the save file (except the initial save creation).</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
         private void OnSaving(object? sender, SavingEventArgs e)
         {
+            // After shipping menu is clicked, set to false to stop clicking after game is saved
+            shippingMenuActive = false;
             if (!IsEnabled) // server toggle
                 return;
-
-            // shipping menu "OK" click through code
-            this.Monitor.Log("This is the Shipping Menu");
-            shippingMenuActive = true;
-            if (Game1.activeClickableMenu is ShippingMenu)
-            {
-                this.Helper.Reflection.GetMethod(Game1.activeClickableMenu, "okClicked").Invoke();
-            }
         }
 
         /// <summary>Raised after the game state is updated (≈60 times per second), regardless of normal SMAPI validation. This event is not thread-safe and may be invoked while game logic is running asynchronously. Changes to game state in this method may crash the game or corrupt an in-progress save. Do not use this event unless you're fully aware of the context in which your code will be run. Mods using this event will trigger a stability warning in the SMAPI console.</summary>

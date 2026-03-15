@@ -2,14 +2,15 @@ StardewUnattendedMultiplayerServer (Formerly Stardew-Multiplayer-Server-Mod (For
 Nexus Mods page: 
 https://www.nexusmods.com/stardewvalley/mods/29423/
 
+## Added the mod .zip files. The mod can be directly used by extracting the .zip file and putting into the mods folder (same as installing any other mod).
+
 This is a fork of the fork of the original Always-On-Server-for-Multiplayer mod for Stardew Valley, created by the awesome funny-snek.
 
-Why the Fork?
-
-It appears it may no longer be actively developed. To keep this valuable mod alive and potentially add future improvements, this fork has been created.
+Why the Fork? It appears it may no longer be actively developed. To keep this valuable mod alive and potentially add future improvements, this fork has been created.
 
 What's Included?
 
+- **Fixes bug where host is stuck on the shipping menu preventing the game from saving and proceeding to the next day**
 - This fork provides the same functionality as the original mod, allowing you to run a dedicated headless server for Stardew Valley multiplayer, even when the host isn't actively playing.
 - Updated to utilize .NET6, as well as makes fixes for SV version 1.6.9+ as well as SMAPI 4.1.7.
 - Bug fix for events getting stuck in loop if triggered with "!event" keyword and not followed by any other typing.
